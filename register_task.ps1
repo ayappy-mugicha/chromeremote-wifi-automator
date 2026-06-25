@@ -11,9 +11,16 @@ if (-not $isAdmin) {
 # 1. Wi-Fiイベントログの有効化 (念のため)
 wevtutil sl Microsoft-Windows-WLAN-AutoConfig/Operational /e:true
 
-# 2. タスク情報の定義
-$ScriptPath = Join-Path $PSScriptRoot "toggle_remote_desktop.ps1"
-$TaskName = "WiFi_ChromeRemoteDesktop_Control"
+# 2. 古いタスクのクリーンアップ (移行処理)
+$OldTaskName = "WiFi_ChromeRemoteDesktop_Control"
+if (Get-ScheduledTask -TaskName $OldTaskName -ErrorAction SilentlyContinue) {
+    Write-Host "古いタスク '$OldTaskName' が存在するため削除します。"
+    Unregister-ScheduledTask -TaskName $OldTaskName -Confirm:$false -ErrorAction SilentlyContinue
+}
+
+# 3. タスク情報の定義
+$ScriptPath = Join-Path $PSScriptRoot "toggle_services_by_wifi.ps1"
+$TaskName = "WiFi_Services_Control"
 
 # タスク定義のXMLを生成 (「PC起動時」および「Wi-Fi接続/切断時」に起動するトリガーを定義)
 $taskXml = @"
