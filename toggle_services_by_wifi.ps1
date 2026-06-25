@@ -15,7 +15,6 @@ function Write-Log {
 
 # 2. .env ファイルから設定をロードする
 $EnvFilePath = Join-Path $PSScriptRoot ".env"
-$LegacyTargetSSID = ""
 
 if (Test-Path $EnvFilePath) {
     Get-Content $EnvFilePath | ForEach-Object {
@@ -29,9 +28,7 @@ if (Test-Path $EnvFilePath) {
                 # 引用符 (シングル/ダブルクォート) を除去
                 $val = $val -replace '^["'']|["'']$'
                 
-                if ($key -eq "TARGET_SSID") {
-                    $LegacyTargetSSID = $val
-                } elseif ($key.StartsWith("SERVICE_")) {
+                if ($key.StartsWith("SERVICE_")) {
                     $sName = $key.Substring(8).Trim()
                     $Services += [PSCustomObject]@{
                         Name = $sName
@@ -40,15 +37,6 @@ if (Test-Path $EnvFilePath) {
                 }
             }
         }
-    }
-}
-
-# レガシー互換性の処理 (TARGET_SSID が指定されていて、SERVICE_chromoting が無い場合)
-$hasChromoting = $Services | Where-Object { $_.Name -eq "chromoting" }
-if ($LegacyTargetSSID -and -not $hasChromoting) {
-    $Services += [PSCustomObject]@{
-        Name = "chromoting"
-        TargetSSID = $LegacyTargetSSID
     }
 }
 

@@ -1,2 +1,5 @@
-# Chrome Remote Desktop を有効にしたいWi-FiのSSIDを設定してください
+# 設定ファイル
 .env
+
+# ログファイル
+wifi_monitor.log
